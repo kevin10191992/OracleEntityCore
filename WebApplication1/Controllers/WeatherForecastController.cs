@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
 
 namespace WebApplication1.Controllers
 {
@@ -6,28 +8,47 @@ namespace WebApplication1.Controllers
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
-        {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    };
-
+        private readonly ModelContext _context;
         private readonly ILogger<WeatherForecastController> _logger;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(ModelContext context, ILogger<WeatherForecastController> logger)
         {
+            _context = context;
             _logger = logger;
         }
 
-        [HttpGet(Name = "GetWeatherForecast")]
-        public IEnumerable<WeatherForecast> Get()
+
+
+
+        [HttpGet]
+
+        public IEnumerable<VariablesOtorgamiento> Get()
         {
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            var r = _context.VariablesOtorgamientos.ToList();
+            return r;
+        }
+
+        [HttpGet]
+        [Route("GetSingle")]
+
+        public async Task<JObject> GetSingle()
+        {
+            var r = _context.VariablesOtorgamientos.FirstOrDefault();
+
+
+
+            int nro = await _context.VariablesOtorgamientos.Where(a => a.SqParticipante == 1 && a.SqSolicitud == 1).CountAsync();
+
+
+            var res = new
             {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = Random.Shared.Next(-20, 55),
-                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-            })
-            .ToArray();
+                Codigo = "01",
+                Descripcion = "Exito",
+                Data = nro,
+                Data2 = r
+            };
+
+            return (JObject.FromObject(res));
         }
     }
 }

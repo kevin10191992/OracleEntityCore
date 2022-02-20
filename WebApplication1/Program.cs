@@ -1,11 +1,15 @@
+using WebApplication1;
+using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddNewtonsoftJson();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+string ORACLE = builder.Configuration.GetConnectionString("ORACLE");
+builder.Services.AddDbContext<ModelContext>(op => op.UseOracle(ORACLE, o => o.UseOracleSQLCompatibility("11")));
 
 var app = builder.Build();
 
